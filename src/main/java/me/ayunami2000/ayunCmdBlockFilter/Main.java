@@ -1,5 +1,6 @@
 package me.ayunami2000.ayunCmdBlockFilter;
 
+import org.bukkit.block.CommandBlock;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -56,21 +57,21 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onServerCommand(ServerCommandEvent event){
-        if (event.getSender() instanceof BlockCommandSender){
-            if (!loadedBlockedCommands) {
-                event.setCancelled(true);
-                return;
-            }
-            String cmdStr = event.getCommand().stripLeading();
-            if (cmdStr.startsWith("/")) cmdStr = cmdStr.substring(1).stripLeading();
-            if (cmdStr.matches("^[^ :]+:.+$")) cmdStr = cmdStr.substring(cmdStr.indexOf(':')+1);
-            boolean matched = false;
-            for (String blockedCommand : blockedCommands) {
-                matched = cmdStr.equalsIgnoreCase(blockedCommand) || cmdStr.toLowerCase().startsWith(blockedCommand + " ");
-                if (matched) break;
-            }
-            if (matched) event.setCancelled(true);
+        if (!(event.getSender() instanceof BlockCommandSender blockCommandSender)) return;
+        if (!(blockCommandSender.getBlock() instanceof CommandBlock)) return;
+        if (!loadedBlockedCommands) {
+            event.setCancelled(true);
+            return;
         }
+        String cmdStr = event.getCommand().stripLeading();
+        if (cmdStr.startsWith("/")) cmdStr = cmdStr.substring(1).stripLeading();
+        if (cmdStr.matches("^[^ :]+:.+$")) cmdStr = cmdStr.substring(cmdStr.indexOf(':')+1);
+        boolean matched = false;
+        for (String blockedCommand : blockedCommands) {
+            matched = cmdStr.equalsIgnoreCase(blockedCommand) || cmdStr.toLowerCase().startsWith(blockedCommand + " ");
+            if (matched) break;
+        }
+        if (matched) event.setCancelled(true);
     }
 
     private CommandMap getCommandMap() {
