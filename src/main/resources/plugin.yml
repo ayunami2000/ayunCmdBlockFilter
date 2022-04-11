@@ -1,4 +1,5 @@
 name: ayunCmdBlockFilter
 author: ayunami2000
 version: 1.0
+api-version: 1.18
 main: me.ayunami2000.ayunCmdBlockFilter.Main

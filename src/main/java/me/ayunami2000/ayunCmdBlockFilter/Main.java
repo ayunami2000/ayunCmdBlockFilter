@@ -1,10 +1,8 @@
 package me.ayunami2000.ayunCmdBlockFilter;
 
-import org.bukkit.block.CommandBlock;
-import org.bukkit.command.BlockCommandSender;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.Material;
+import org.bukkit.command.*;
+import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerCommandEvent;
@@ -26,6 +24,7 @@ public class Main extends JavaPlugin implements Listener {
         List<String> rawBlockedCmds = getConfig().getStringList("blockedCommands");
 
         getServer().getPluginManager().registerEvents(this, this);
+
         getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
             CommandMap commandMap = getCommandMap();
             if (commandMap == null) return;
@@ -57,8 +56,11 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onServerCommand(ServerCommandEvent event){
-        if (!(event.getSender() instanceof BlockCommandSender blockCommandSender)) return;
-        if (!(blockCommandSender.getBlock() instanceof CommandBlock)) return;
+        CommandSender commandSender = event.getSender();
+        if (commandSender instanceof BlockCommandSender blockCommandSender){
+            Material type = blockCommandSender.getBlock().getType();
+            if (!(type == Material.COMMAND_BLOCK || type == Material.CHAIN_COMMAND_BLOCK || type == Material.REPEATING_COMMAND_BLOCK)) return;
+        }else if(!(commandSender instanceof CommandMinecart)) return;
         if (!loadedBlockedCommands) {
             event.setCancelled(true);
             return;
